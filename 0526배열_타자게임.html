@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #wrapper {
+            width: 750px;
+            height: 550px;
+            background: black;
+            margin: auto;
+            border: 5px dashed yellow;
+
+        }
+
+        #side {
+            width: 150px;
+            height: 100%;
+            background: lightgray;
+            float: left;
+            text-align: center;
+            /*padding-left: 10px;*/
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        #score {
+            width: 80%;
+            height: 50px;
+            background: white;
+            font-weight: bold;
+            font-size: 35px;
+            margin-left: 15px;
+            margin-top: 15px;
+            border-radius: 15px;
+        }
+
+        #hp {
+            width: 100%;
+            height: 200px;
+            background: lightgray;
+            position: relative;
+            /*자식(hpBox)이 포지션을 명시했으므로*/
+            text-align: center;
+
+        }
+
+        #keyword {
+            width: 80%;
+            height: 50px;
+            font-size: 20px;
+        }
+
+        #bt {
+            width: 50px;
+            font-weight: bold;
+        }
+
+        #content {
+            width: 600px;
+            height: 100%;
+            background: lightseagreen;
+            float: left;
+            position: relative;
+            /*자식(span)이 포지션을 명시했으므로*/
+        }
+    </style>
+    <script>
+        //1) 전역변수 선언
+        let score;
+        let hp;
+        let keyword;
+        let content;
+        let size = 25; //hpBox의 크기
+
+        //lib함수 참조 끌: 최소값~최대값까지 랜덤을 구하는 함수
+        //2와 5사이의 랜덤값을 원하면, 호출 시 getRandomByRange(2, 5);
+        function getRandomByRange(min, max) {
+            let result = min + parseInt(((max - min) + 1) * Math.random());
+
+            return result;
+        }
+
+        //3) hpBox가 모아질 배열 선언
+        let hpArray = [];
+        //6-1) span들을 담고있을 배열 선언
+        let spanArray = [];
+
+        //4) 게임에 사용할 단어들의 배열
+        let word = ["생크림", "고양이", "마루", "파인애플", "여름",
+            "버저비터", "바닐라", "이팝나무", "소금빵", "불사조",
+            "아구몬", "시티팝", "은하수", "비행기", "셜록홈즈"];
+
+        //7) 몇 픽셀씩 내려올지 그 폭을 결정하는 변수 선언
+        let velY = 5;
+
+        //8) move() 함수의 동작을 결정하는 논리값, 초기에는 단어가 내려오면 안되므로 false;
+        let flag=false; 
+        
+
+
+
+        //2) 게임에 사용될 HP를 표현할 12개의 사각형 박스 만들기
+        function createHP() {
+            for (let a = 0; a < 4; a++) { //바깥쪽for문: 층수
+                for (let i = 0; i < 3; i++) { //안쪽for문: 호수
+                    let hpBox = document.createElement("div");
+                    hpBox.style.width = size + "px"; //정사각형이라 동일한 너비와 높이를 가지므로 변수화
+                    hpBox.style.height = size + "px";
+                    hpBox.style.background = "red";
+                    //hp div에 절대위치로 부착하기
+                    hpBox.style.position = "absolute";
+                    hpBox.style.left = 22 + (40 * i) + "px";
+                    hpBox.style.top = 22 + (40 * a) + "px";
+
+                    hp.appendChild(hpBox);
+
+                    //3-1) 생성된 박스들을 1차원 배열에 담기
+                    hpArray.push(hpBox);
+                }
+            }
+
+        }
+
+        //5) 단어를 생성해 content에 부착
+        function createWord() {
+            for (let i = 0; i < word.length; i++) {
+                //각 단어마다 html요소 중 inline 속성이 있는 태그인 span을 활용
+                let span = document.createElement("span");
+                span.innerText = word[i];
+                span.style.position = "absolute";
+                span.style.left = getRandomByRange(10, 500) + "px";
+                span.style.top = getRandomByRange(-50, -200) + "px"; //처음엔 보이지 않다가 위에서부터 내려오도록 해야하므로.
+                span.style.fontWeight = "bold";
+
+                content.appendChild(span);
+
+                //6-1) 생성된 span요소를 배열에 담아놓기
+                //why? 순서가 생기므로 반복문, 랜덤 등 활용도가 높아지기 때문
+                //이 경우 타자입력값과 span들을 반복문으로 돌려가며 비교해야하므로 배열화되어야 함.(??)
+                spanArray.push(span);
+            }
+        }
+
+        //6) 텍스트를 담고 있는 span이 입력 버튼을 누르면 내려오게 함
+        function move() { //spanArray에 들어있는 span 수만큼, 즉 모든 단어만큼
+            if (flag) {
+                for (let i = 0; i < spanArray.length; i++) {
+                    spanArray[i].style.top = parseInt(spanArray[i].style.top) + velY + "px";
+                }
+            }
+        }
+
+
+        //0) 초기화 함수
+        function init() {
+            content = document.getElementById("content");
+            score = document.getElementById("score");
+            hp = document.getElementById("hp");
+            keyword = document.getElementById("keyword");
+
+        }
+
+        //0) 문서가 로드되면
+        addEventListener("load", function () {
+            init();
+            createHP();
+            createWord();
+
+            //9) 자동함수로 move() 호출
+            setInterval("move()", 100);
+        });
+    </script>
+</head>
+
+<body>
+    <div id="wrapper">
+        <div id="side">
+            <div id="score">점수</div>
+            <div id="hp"></div>
+            <input id="keyword" type="text">
+            <button id="bt" onclick="flag=!flag">입력</button>
+        </div>
+        <div id="content"></div>
+    </div>
+</body>
+
+</html>
