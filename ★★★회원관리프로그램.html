@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>★★★회원관리프로그램(중요한예제임)★★★</title>
+    <style>
+        #wrapper {
+            width: 750px;
+            height: 600px;
+            background: black;
+            margin: auto;
+        }
+
+        #header {
+            width: 100%;
+            height: 50px;
+            background: gray;
+        }
+
+        #side {
+            width: 150px;
+            height: 550px;
+            background: lightgray;
+            float: left;
+            text-align: center;
+        }
+
+        #side input,
+        button {
+            width: 80%;
+            /*border: 2px solid darkgrey;*/
+            margin-top: 10px;
+        }
+
+        #content {
+            width: 600px;
+            height: 550px;
+            background: skyblue;
+            float: left;
+            text-align: center;
+        }
+    </style>
+    <script>
+        //1) 
+        //전역변수화 작업
+        let id; //유저가 입력한 아이디
+        let pass; //유저가 입력한 비번
+        let name; //유저가 입력한 이름
+
+        let content;
+
+        //1차원 배열인 회원을 담게될 2차원 배열 선언        
+        let memberList = [];
+        //배열이 존재는 하나 길이가 0임. 지금은 1차원배열이지만, 곧 회원 1명을 담게될 배열을 대입하는 순간 2차원 배열이 될 예정
+
+        let tag; //content div에 출력될 태그를 담아놓을 전역변수
+
+        //2)
+        //정보를 출력할 테이블을 생성
+        //4-1) 
+        //해당 함수에서 하는 역할 getList 함수로 이전함
+        function createTable() {
+            //방법1) createElement("table");
+            //방법2) innerHTML("<table>"); 
+            //!!주의!!
+            //div내에서는 문자로 인식
+            //div요소 안에 쓰는 content.innerText("<table>");는 태그로 인시하지 않고 문자로 인식함
+            //document.write("<table>");와 혼동하지 않기!, 문서에 바로 쓰는건 태그로 인식함
+            //즉, 문서에 <>붙이고 출력하면 태그로 인정하지만, 문서가 아닌 요소 div안에 <>를 넣으면 태그로 인정X
+            //따라서 innerText가 아닌 innerHTML로 해결
+
+            tag = "<table border='1px' width='100%'>";
+            tag += "<tr align='center'>"; //x+=2; x=x+2와 동일함
+            tag += "<td>no.</td>";
+            tag += "<td>ID</td>";
+            tag += "<td>Password</td>";
+            tag += "<td>name</td>";
+            tag += "</tr>";
+            tag += "</table>"; //태그 누적
+
+            //모아진 태그문자열을 최종적으로 content에 대입
+            content.innerHTML = tag;
+            console.log(tag);
+
+        }
+
+        //4)
+        //이차원 배열에 들어잇는 회원을 추출하여 테이블로 시각화
+        //4-1) 수정사항! createTable() 함수를 여기로 가져옴
+        function getList() {
+            
+            //tag라는 전역변수 안에 테이블 생성 태그들을 담고, 마지막에 innerHTML에 전역변수를 대입하여 테이블을 출력한다
+            tag = "<table border='1px' width='100%'>";
+            tag += "<tr align='center'>"; //x+=2; x=x+2와 동일함
+            tag += "<td>no.</td>";
+            tag += "<td>ID</td>";
+            tag += "<td>Password</td>";
+            tag += "<td>name</td>";
+            tag += "</tr>";
+
+            //맨 위의 제목 컬럼들과 닫는 테이블, innerHTML은 반복될 필요가 없기 때문에, 반복문 밖으로!
+            for (let i=0; i<memberList.length; i++) {
+                //이차원 배열에서 한 층을 접근하여, 한 사람의 정보가 담겨진 1차원 배열을 추출하자
+                let member = memberList[i];
+
+                //여기에 데이터를 출력! //기존의 태그 변수에 누적되어있는 문자열을 이어서 붙이자
+                tag += "<tr onMouseOver=\"this.style.background='lavender'\" onMouseOut=\"this.style.background=''\">";
+                tag += "<td>"+(i+1)+"</td>";
+                tag += "<td>" + member[0] + "</td>";
+                tag += "<td>" + member[1] + "</td>";
+                tag += "<td>" + member[2] + "</td>";
+                tag += "</tr>";
+            }
+            //통계 tr 추가
+            tag+="<tr>";
+            tag+="<td align='right' colspan='4'>총" + memberList.length + "명</td>";
+            
+            tag+="</tr>";
+            tag += "</table>"; //태그 누적
+
+            console.log(tag);
+            content.innerHTML = tag;
+        }
+
+        //3)
+        //회원을 등록하기
+        //회원 1명은 1차원배열에 담기고, 이 1차원배열들이 모여서 2차원 배열인 표가 완성되는 것임
+        function regist() {
+            //한 사람에 대한 정보를 담기위한 비어있는 1차원 배열 준비
+            let member = new Array(3);
+            member[0] = id.value; //text박스는 그 값을 value로 처리
+            member[1] = pass.value;
+            member[2] = name.value;
+
+            console.log("등록된 회원은", member);
+
+            //2차원배열에 추가하기
+            memberList.push(member);
+
+            //등록된 내용 출력하기
+            getList();
+        }
+
+        //0)
+        //초기화 함수
+        function init() {
+            id = window.document.form1.id;
+            pass = window.document.form1.pass;
+            name = form1.name; //window.document. 는 유일하기 때문에 생략도 가능
+
+            content = document.getElementById("content");
+        }
+
+        //0)
+        //문서가 로드되면
+        addEventListener("load", function () {
+            init();
+            getList();
+
+        });
+    </script>
+</head>
+
+<body>
+    <div id="wrapper">
+        <div id="header">
+            <select id="sel">
+                <option value="id">ID</option>
+                <option value="password">Password</option>
+                <option value="name">Name</option>
+            </select>
+            <input type="text" placeholder="검색어를 입력해">
+        </div>
+        <div id="side">
+            <!--
+                form태그?
+                입력양식의 범위를 설정하는 태그, 데이터의 전송을 목적으로 함
+                1) 폼태그 범위에 있는 모든 UI관련 컴포넌트는 서버로 전송할 수 있다
+                2) 폼태그를 이용하면 요소들간의 접근방법으로서, 요소의 부모자식간 포함관계로 접근이 가능
+
+                *name을 지정해줘야 데이터의 전송과 접근이 가능함
+                  ex) window.document.form1.id //getElement~도 가능
+            -->
+            <form name="form1">
+                <input type="text" name="id" placeholder="ID">
+                <input type="text" name="pass" placeholder="Password">
+                <input type="text" name="name" placeholder="Name">
+            </form>
+            <button onClick="regist()">등록</button>
+        </div>
+        <div id="content">
+
+        </div>
+    </div>
+</body>
+
+</html>

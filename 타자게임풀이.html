@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #wrapper {
+            width: 750px;
+            height: 550px;
+            background: yellow;
+            margin: auto;
+        }
+
+        #side {
+            width: 150px;
+            height: 550px;
+            background: pink;
+            float: left;
+            text-align: center;
+        }
+
+        #content {
+            width: 600px;
+            height: 550px;
+            background: salmon;
+            float: left;
+            position: relative;
+            /*자식 떄문에 포지션 명시*/
+        }
+
+        #score {
+            font-size: 40px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        #side input {
+            width: 90%;
+            height: 45px;
+            margin-top: 10px;
+        }
+
+        #side button {
+            width: 94%;
+            height: 25px;
+            margin-top: 10px;
+        }
+
+        #hp {
+            background: greenyellow;
+            width: 140px;
+            height: 150px;
+            margin: auto;
+            margin-top: 10px;
+            position: relative;
+            /*자식 떄문에 포지션 명시*/
+        }
+    </style>
+    <script src="../js/lib.js"></script>
+    <script>
+        //1)
+        let hp;
+        let size = 35; //상자의 크기
+        let content; //게임이 진행될 스테이지
+
+        //3)
+        //체력상자가 모아질 배열 선언
+        let hpArray = [];
+
+        //4)
+        //게임에 사용할 단어들의 배열
+        let word = ["바디로션", "생크림", "텔레비전", "어벤져스", "파인애플", "목련", "여름", "농구", "도화지", "바닐라"];
+
+        //6-1)
+        //스팬들을 담고있을 배열 선언
+        let spanArray = [];
+
+        //7) 
+        //몇걸음씩 내려올지 그 폭을 결정하는 변수
+        let velY = 5;
+
+        //8)
+        let flag=false;
+
+
+        //2)
+        //게임에 사용될 체력을 표현할 12개의 사각형 박스 만들기
+        function createHP() {
+            for (let a = 0; a < 4; a++) { //층수
+                for (let i = 0; i < 3; i++) { //호수
+                    let box = document.createElement("div");
+                    box.style.width = size + "px";
+                    box.style.height = size + "px";
+                    box.style.background = "red";
+                    box.style.border = "2px solid black";
+
+                    //hp에 부착하기, 절대위치로~
+                    box.style.position = "absolute";
+                    box.style.left = 18 + (i * size) + "px"; //호수와 관련
+                    box.style.top = 3 + (a * size) + "px"; //층수와 관련
+
+                    hp.appendChild(box);
+
+                    //3-1)
+                    //생성된 box 를 1차원 배열에 담기
+                    hpArray.push(box);
+                }
+            }
+        }
+
+        //5)
+        function createWord() {
+            for (let i = 0; i < word.length; i++) {
+                //각 단어마다 html요소 중 inline 속성이 있는 태그인 span을 활용
+                let span = document.createElement("span");
+                span.innerText = word[i];
+                span.style.position = "absolute";
+                span.style.left = getRandomByRange(10, 500) + "px";
+                span.style.top = getRandomByRange(-50, -200) + "px";
+                span.style.fontWeight = "bold";
+
+                content.appendChild(span);
+
+                //6-1)
+                //생성된 span요소를 배열에 담아놓기
+                //why? 순서가 생기므로 반복문, 랜덤 등 활용도가 높아지기 때문.
+                //우리의 경우. 타자입력값과 span들을 반복문으로 돌려가며 비교해야하므로 배열화되어야 함.
+                spanArray.push(span);
+            }
+        }
+
+        //6) 
+        //텍스트를 담고있는 스팬이 내려오게하는 함수
+        function move() { //spanArray에 들어있는 span수만큼, 즉 모든 단어만큼
+            if (flag) {
+                for (let i = 0; i < spanArray.length; i++) {
+                    spanArray[i].style.top = parseInt(spanArray[i].style.top) + velY + "px";
+                }
+            }
+        }
+
+        //0)
+        function init() {
+            hp = document.getElementById("hp");
+            content = document.getElementById("content");
+
+        }
+
+        //0)
+        addEventListener("load", function () {
+            init();
+            createHP();
+            createWord(); //단어 수만큼의 요소생성
+
+            setInterval("move()", 500);
+            //자동함수는 항상 초기화가 완료된 다음, 즉 요소들이 존재한 이후부터 진행되어야 하므로 
+            //가장 마지막에 호출하는 것이 안정성이 높음
+        });
+    </script>
+</head>
+
+<body>
+    <div id="wrapper">
+        <div id="side">
+            <div id="score">50 점</div>
+            <div id="hp"></div>
+            <input type="text">
+            <button onClick="flag=!flag;">Start</button>
+        </div>
+        <div id="content"></div>
+    </div>
+
+</body>
+
+</html>
